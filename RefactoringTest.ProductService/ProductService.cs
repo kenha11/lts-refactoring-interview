@@ -1,16 +1,6 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.Azure.WebJobs;
-using Microsoft.Azure.WebJobs.Extensions.Http;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
-using System.Net.Http;
-using System.Text;
 
 namespace RefactoringTest.ProductService
 {
@@ -18,47 +8,54 @@ namespace RefactoringTest.ProductService
     {
         private readonly IEnumerable<int> _allAvailableIds = Enumerable.Range(0, 100000000);
         private const string _usedIdsFileName = "used_ids.txt";
-        
-        public bool AddProduct(string productName, string produtcDescirption, decimal price, int quantity, string brandName, string promotion)
+        private const string _brandServiceUrl = "http://brandservice-test.azurewebsites.net?brandName=";
+
+        private readonly IProductValidator _productValidator;
+        private readonly IBrandValidator _brandValidator;
+        private readonly IProductCalculator _productCalculator;
+        private readonly IProductHandler _productHandler;
+
+        //Construtor only for use with the legacy client
+        public ProductService()
         {
-            if(string.IsNullOrEmpty(productName) || string.IsNullOrEmpty(produtcDescirption))
-                return false;
-            
-            if(price <= 0 || quantity <= 0)
-                return false;
+            _productValidator = new ProductValidator();
+            _brandValidator = new BrandValidator(new HttpClientHandler());
+            _productCalculator = new ProductCalculator();
+            _productHandler = new ProductHandler();
+        }
 
-            if(string.IsNullOrEmpty(brandName))
-                return false;
+        public ProductService(IProductValidator productValidator, IBrandValidator brandValidator, IProductCalculator productCalculator, IProductHandler productHandler)
+        {
+            _productValidator = productValidator;
+            _brandValidator = brandValidator;
+            _productCalculator = productCalculator;
+            _productHandler = productHandler;
+        }
 
-            if (promotion == "5PERCENTOFF")
-                price = price - price * 0.05m;
-            else if (promotion == "10PERCENTOFF")
-                price = price - price * 0.1m;
-            else if (promotion == "20PERCENTOFF")
-                price = price - price * 0.2m;
-            else if (!string.IsNullOrEmpty((promotion)))
-                throw new ArgumentException("Invalid promotion specified");
-
-            var sb = new StringBuilder();
-            sb.Append("http://brandservice-test.azurewebsites.net?brandName=");
-            sb.Append(brandName);
-            var ep = sb.ToString();
-            var c = new HttpClient();
-            var r = c.GetAsync(ep).Result.Content.ReadAsStringAsync().Result;
-            var isBrandAllowed = bool.Parse(r);
-
-            if (!isBrandAllowed)
+        public bool AddProduct(Product product)
+        {
+            return AddProduct(product.ProductName, product.ProductDescription, product.Price, product.Quantity, product.BrandName, product.Promotion);
+        }
+        
+        public bool AddProduct(string productName, string productDescription, decimal price, int quantity, string brandName, string promotion)
+        {
+            if (!_productValidator.IsValidProduct(productName, productDescription, price, quantity, brandName))
                 return false;
 
-            var usedIds = File.ReadAllLines(_usedIdsFileName).Select(int.Parse);
-            var id = _allAvailableIds.FirstOrDefault(x => usedIds.All(i => i != x));
+            decimal updatedPrice = _productCalculator.ApplyPromotion(price, promotion);
+
+            int id = _productHandler.GetNextAvailableId(_allAvailableIds, _usedIdsFileName);
             
             if(id == 0)
                 throw new Exception("No available ids left");
+
+            if (!_brandValidator.IsBrandAllowed(_brandServiceUrl, brandName))
+                return false;
             
-            ProductRepository.AddProduct(id, productName, produtcDescirption, price, quantity, brandName);
+            _productHandler.AddProduct(id, productName, productDescription, updatedPrice, quantity, brandName);
             
             return true;
         }
+
     }
 }

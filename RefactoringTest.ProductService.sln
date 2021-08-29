@@ -5,7 +5,9 @@ VisualStudioVersion = 16.0.31112.23
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RefactoringTest.ProductService", "RefactoringTest.ProductService\RefactoringTest.ProductService.csproj", "{BF7F14D5-4EAF-4D7F-8AA0-7864499DD78D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RefactoringTest.LegacyClient", "RefactoringTest.LegacyClient\RefactoringTest.LegacyClient.csproj", "{0BBB62D3-D42C-49E7-B5E4-9073E9ECF860}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "RefactoringTest.LegacyClient", "RefactoringTest.LegacyClient\RefactoringTest.LegacyClient.csproj", "{0BBB62D3-D42C-49E7-B5E4-9073E9ECF860}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RefactoringTest.ProductService.UnitTest", "RefactoringTest.ProductService.UnitTest\RefactoringTest.ProductService.UnitTest.csproj", "{8B86AD4D-4968-40A6-BDE9-689A60AE1E86}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{0BBB62D3-D42C-49E7-B5E4-9073E9ECF860}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0BBB62D3-D42C-49E7-B5E4-9073E9ECF860}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0BBB62D3-D42C-49E7-B5E4-9073E9ECF860}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8B86AD4D-4968-40A6-BDE9-689A60AE1E86}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8B86AD4D-4968-40A6-BDE9-689A60AE1E86}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8B86AD4D-4968-40A6-BDE9-689A60AE1E86}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8B86AD4D-4968-40A6-BDE9-689A60AE1E86}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
